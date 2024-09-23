@@ -33,7 +33,7 @@ A real-time, tightly coupled LiDAR-Inertial SLAM algorithm developed on top of [
 
 `Fast-LIMO` has been developed as a __thread-safe__ _C++_ library with [Eigen3](https://eigen.tuxfamily.org/index.php?title=Main_Page) and [PCL](https://pointclouds.org/) as its only dependencies. This way, it can be used outside the ROS framework __without any changes__, making it more portable. This project acts as a ROS wrapper of the self-developed [fast_limo](include/fast_limo/)'s library.
 
-`Fast-LIMO` stands for a multithreaded version of the approach _Localize Intensively Map Offline (LIMO)_ stated in [LIMO-Velo](https://github.com/Huguet57/LIMO-Velo) 's algorithm developed by [Huget57](https://github.com/Huguet57). 
+`Fast-LIMO` stands for a multithreaded version of the approach _Localize Intensively Map Offline (LIMO)_ stated in [LIMO-Velo](https://github.com/Huguet57/LIMO-Velo) 's algorithm developed by [Huget57](https://github.com/Huguet57).
 
 <div align="center">
   <img src="doc/cat15.gif" alt="CAT15X's performance"  width="800"/>
@@ -263,5 +263,5 @@ Here, the configuration file for `Fast-LIMO` is explained. _Note that some param
 
 ## References
 This project relies upon [HKU-Mars](https://github.com/hku-mars)' open-source _C++_ libraries:
-- Iterative Kalman Filters on Manifolds ([IKFoM](include/IKFoM/)) 
-- Incremental KD-Tree ([ikd-Tree](include/ikd-Tree/)) 
+- Iterative Kalman Filters on Manifolds ([IKFoM](include/IKFoM/))
+- Incremental KD-Tree ([ikd-Tree](include/ikd-Tree/))
