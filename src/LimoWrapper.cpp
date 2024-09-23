@@ -46,16 +46,16 @@ namespace ros2wrap {
             rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr map_bb_pub;
             rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr match_points_pub;
 
-                // TF 
+                // TF
             std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
         // FUNCTIONS
 
         public:
 
-            LimoWrapper() : Node("fast_limo", 
+            LimoWrapper() : Node("fast_limo",
                                 rclcpp::NodeOptions()
-                                .automatically_declare_parameters_from_overrides(true) ) 
+                                .automatically_declare_parameters_from_overrides(true) )
                 {
 
                     // Declare the one and only Localizer and Mapper objects
@@ -71,7 +71,7 @@ namespace ros2wrap {
                                     config.topics.lidar, 1, std::bind(&LimoWrapper::lidar_callback, this, std::placeholders::_1));
                     imu_sub_   = this->create_subscription<sensor_msgs::msg::Imu>(
                                     config.topics.imu, 1000, std::bind(&LimoWrapper::imu_callback, this, std::placeholders::_1));
-                    
+
                     // Set up publishers
                     pc_pub      = this->create_publisher<sensor_msgs::msg::PointCloud2>("/fast_limo/pointcloud", 1);
                     state_pub   = this->create_publisher<nav_msgs::msg::Odometry>("/fast_limo/state", 1);
@@ -90,11 +90,11 @@ namespace ros2wrap {
                     // Initialize Localizer
                     LOC.init(config);
                 }
-            
+
             private:
-            
-            /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-               ///////////////////////////////////////             Callbacks            ///////////////////////////////////////////////////////////// 
+
+            /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+               ///////////////////////////////////////             Callbacks            /////////////////////////////////////////////////////////////
                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
             void lidar_callback(const sensor_msgs::msg::PointCloud2 & msg) {
@@ -144,7 +144,7 @@ namespace ros2wrap {
                 this->map_bb_pub->publish(bb_marker);
 
                 // Visualize current matches
-                visualization_msgs::msg::MarkerArray match_markers = this->getMatchesMarker(loc.get_matches(), 
+                visualization_msgs::msg::MarkerArray match_markers = this->getMatchesMarker(loc.get_matches(),
                                                                                         this->world_frame
                                                                                         );
                 this->match_points_pub->publish(match_markers);
@@ -172,8 +172,8 @@ namespace ros2wrap {
                 this->broadcastTF(loc.getWorldState(), world_frame, body_frame, true);
             }
 
-        /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-           ///////////////////////////////////////             Load params          ///////////////////////////////////////////////////////////// 
+        /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+           ///////////////////////////////////////             Load params          /////////////////////////////////////////////////////////////
            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
            void loadConfig(fast_limo::Config* config){
@@ -319,9 +319,9 @@ namespace ros2wrap {
                 config->ikfom.cov_bias_acc = accel_bias_p.as_double();
            }
 
-        
-        /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-           ///////////////////////////////////////             Aux. func.           ///////////////////////////////////////////////////////////// 
+
+        /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+           ///////////////////////////////////////             Aux. func.           /////////////////////////////////////////////////////////////
            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
             void fromROStoLimo(const sensor_msgs::msg::Imu& in, fast_limo::IMUmeas& out){
@@ -335,16 +335,16 @@ namespace ros2wrap {
                 out.lin_accel(1) = in.linear_acceleration.y;
                 out.lin_accel(2) = in.linear_acceleration.z;
 
-                Eigen::Quaterniond qd(in.orientation.w, 
-                                    in.orientation.x, 
-                                    in.orientation.y, 
+                Eigen::Quaterniond qd(in.orientation.w,
+                                    in.orientation.x,
+                                    in.orientation.y,
                                     in.orientation.z );
                 out.q = qd.cast<float>();
             }
 
             void fromLimoToROS(const fast_limo::State& in, nav_msgs::msg::Odometry& out){
                 out.header.stamp = this->get_clock()->now();
-                out.header.frame_id = "map";
+                out.header.frame_id = this->world_frame;
 
                 // Pose/Attitude
                 Eigen::Vector3d pos = in.p.cast<double>();
@@ -386,7 +386,7 @@ namespace ros2wrap {
 
                 geometry_msgs::msg::TransformStamped tf_msg;
                 tf_msg.header.stamp    = (now) ? this->get_clock()->now() : rclcpp::Time(in.time);
-                /* NOTE: depending on IMU sensor rate, the state's stamp could be too old, 
+                /* NOTE: depending on IMU sensor rate, the state's stamp could be too old,
                     so a TF warning could be print out (really annoying!).
                     In order to avoid this, the "now" argument should be true.
                 */
@@ -424,7 +424,7 @@ namespace ros2wrap {
                 m.color.a = 0.5f;
 
                 m.lifetime = rclcpp::Duration::from_seconds(0.0);
-                m.header.frame_id = "map";
+                m.header.frame_id = this->world_frame;
                 m.header.stamp = this->get_clock()->now();
 
                 m.pose.orientation.w = 1.0;
