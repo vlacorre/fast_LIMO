@@ -8,7 +8,7 @@ fast_limo:
         imu: /imu_pole
       # output:
 
-    frames: # output frames (the transform between frames will be broadcasted)
+    frames: # output frames (the transform between frames will be broadcast)
       world: odom
       body: base_link
 
@@ -33,22 +33,22 @@ fast_limo:
       imu:
         t: [ 0.07, -0.11, -0.345 ]
         R: [ 1.,  0.,  0.,
-              0.,  1.,  0.,
-              0.,  0.,  1. ]
+             0.,  1.,  0.,
+             0.,  0.,  1. ]
       lidar:
         t: [ 0.,  0.,  0. ]
         R: [ 1.,  0.,  0.,
-              0.,  1.,  0.,
-              0.,  0.,  1. ]
+             0.,  1.,  0.,
+             0.,  0.,  1. ]
 
     intrinsics:
       accel:
-        bias: [ 0.01, 0.01, 0.01 ]  # [m/s^2]
+        bias: [ 0.00983028, 0.01116478, 0.04539680 ]  # [m/s^2]
         sm:   [ 1.,  0.,  0.,
                 0.,  1.,  0.,
                 0.,  0.,  1. ]
       gyro:
-        bias: [ 0.01, 0.01, 0.01 ]  # [rad/s]
+        bias: [ -0.00487052, 0.00595576, -0.00141832 ]  # [rad/s]
 
     filters:
       cropBox: # prism crop
