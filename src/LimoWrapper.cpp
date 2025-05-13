@@ -49,6 +49,10 @@ namespace ros2wrap {
                 // TF
             std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
+                // Timer
+            // Timer to call publish_odom()
+            rclcpp::TimerBase::SharedPtr publish_odom_timer_;
+
         // FUNCTIONS
 
         public:
@@ -87,11 +91,32 @@ namespace ros2wrap {
                     // Init TF broadcaster
                     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
+                    // Set up timer
+                    publish_odom_timer_ = this->create_wall_timer(
+                        std::chrono::milliseconds(100),
+                        std::bind(&LimoWrapper::publish_odom_timer_callback, this));
+
                     // Initialize Localizer
                     LOC.init(config);
                 }
 
             private:
+
+            void publish_odom_timer_callback()
+            {
+              fast_limo::Localizer& loc = fast_limo::Localizer::getInstance();
+
+              // State publishing
+              nav_msgs::msg::Odometry state_msg, body_msg;
+              this->fromLimoToROS(loc.getWorldState(), loc.getPoseCovariance(), loc.getTwistCovariance(), state_msg);
+              this->fromLimoToROS(loc.getBodyState(), loc.getPoseCovariance(), loc.getTwistCovariance(), body_msg);
+
+              this->state_pub->publish(state_msg);
+              this->body_pub->publish(body_msg);
+
+              // TF broadcasting
+              this->broadcastTF(loc.getWorldState(), world_frame, body_frame, true);
+            }
 
             /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                ///////////////////////////////////////             Callbacks            /////////////////////////////////////////////////////////////
@@ -159,17 +184,6 @@ namespace ros2wrap {
 
                 // Propagate IMU measurement
                 loc.updateIMU(imu);
-
-                // State publishing
-                nav_msgs::msg::Odometry state_msg, body_msg;
-                this->fromLimoToROS(loc.getWorldState(), loc.getPoseCovariance(), loc.getTwistCovariance(), state_msg);
-                this->fromLimoToROS(loc.getBodyState(), loc.getPoseCovariance(), loc.getTwistCovariance(), body_msg);
-
-                this->state_pub->publish(state_msg);
-                this->body_pub->publish(body_msg);
-
-                // TF broadcasting
-                this->broadcastTF(loc.getWorldState(), world_frame, body_frame, true);
             }
 
         /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
